@@ -1,0 +1,13 @@
+model,tinfo,variable,year
+pm25_downscaled_emulator_CLE_total,True,pm25,2010
+pm25_downscaled_emulator_CLE_total,True,pm25,2030
+pm25_downscaled_emulator_CLE_total,True,pm25,2050
+pm25_downscaled_emulator_CLE_total,True,pm25s,2010
+pm25_downscaled_emulator_CLE_total,True,pm25s,2030
+pm25_downscaled_emulator_CLE_total,True,pm25s,2050
+pm25_downscaled_emulator_CLE_total,True,pm25bc,2010
+pm25_downscaled_emulator_CLE_total,True,pm25bc,2030
+pm25_downscaled_emulator_CLE_total,True,pm25bc,2050
+pm25_downscaled_emulator_CLE_total,True,pm25oc,2010
+pm25_downscaled_emulator_CLE_total,True,pm25oc,2030
+pm25_downscaled_emulator_CLE_total,True,pm25oc,2050

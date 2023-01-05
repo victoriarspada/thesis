@@ -1,0 +1,17 @@
+#!/bin/sh
+set -ex
+# export PYTHONPATH=C:/Python38
+
+#scenarioi='SSP119 SSP126 SSP245 SSP370 SSP585' CLE MFR CFM MFR_SDS SSP119 
+scenarioi='CLE MFR CFM MFR_SDS'
+realmi='low_ecs high_ecs'
+#realmi='high_aci_bc high_ari_oc'
+echo 'scenario,realm' > tmpdat0
+for scenariot in $scenarioi ; do
+  for realmt in $realmi ; do
+     echo ${scenariot}','${realmt} > tmpdat
+     cat tmpdat0 tmpdat > emulator.csv
+     python3 emulator_ch4.py
+  done
+done
+rm -rf tmpdat0 tmpdat

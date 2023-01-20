@@ -49,8 +49,8 @@ scenariox = [  'SSP1-1.9', 'SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5', 'CLE'
 cmip6 = [ True, True, True, True, True, False, False, False, False, False ]
 
 refyrs = '1995_2014'
-year_start = 1990 #2026 #1990
-year_end = 2050 #2035 #2050
+year_start = 1990 #1990
+year_end = 2030 #2050
 ptimei = [ year_end ]
 
 ici = [ 0, 2, 1, 3 ]
@@ -135,13 +135,13 @@ for cs in range(2): # For Arctic and global cases
     esmdat_min_arc = esm_data_dir+'temp_CMIP6_Arctic_low.csv'
     esmdat_max_arc = esm_data_dir+'temp_CMIP6_Arctic_high.csv'
     
-    # esmdat_median_arc = esm_data_dir+'temp_CMIP6_Arctic_median_best.csv'
-    # esmdat_min_arc = esm_data_dir+'temp_CMIP6_Arctic_low_best.csv'
-    # esmdat_max_arc = esm_data_dir+'temp_CMIP6_Arctic_high_best.csv'    
+    esmdat_median_arc = esm_data_dir+'temp_CMIP6_Arctic_median_best.csv'
+    esmdat_min_arc = esm_data_dir+'temp_CMIP6_Arctic_low_best.csv'
+    esmdat_max_arc = esm_data_dir+'temp_CMIP6_Arctic_high_best.csv'    
     
-    data_esm_min_arc = np.genfromtxt(esmdat_min_arc, delimiter=",")[:,1]
-    data_esm_median_arc = np.genfromtxt(esmdat_median_arc, delimiter=",")[:,1]
-    data_esm_max_arc = np.genfromtxt(esmdat_max_arc, delimiter=",")[:,1]
+    data_esm_min_arc = np.genfromtxt(esmdat_min_arc, delimiter=",")[:,0]
+    data_esm_median_arc = np.genfromtxt(esmdat_median_arc, delimiter=",")[:,0]
+    data_esm_max_arc = np.genfromtxt(esmdat_max_arc, delimiter=",")[:,0]
     
     print('data_esm_min_arc',data_esm_min_arc)
     print('data_esm_median_arc',data_esm_median_arc)
@@ -154,13 +154,13 @@ for cs in range(2): # For Arctic and global cases
     esmdat_min_glbl = esm_data_dir+'temp_CMIP6_global_low.csv'
     esmdat_max_glbl = esm_data_dir+'temp_CMIP6_global_high.csv'
 
-    # esmdat_median_glbl = esm_data_dir+'temp_CMIP6_global_median_best.csv'
-    # esmdat_min_glbl = esm_data_dir+'temp_CMIP6_global_low_best.csv'
-    # esmdat_max_glbl = esm_data_dir+'temp_CMIP6_global_high_best.csv'
+    esmdat_median_glbl = esm_data_dir+'temp_CMIP6_global_median_best.csv'
+    esmdat_min_glbl = esm_data_dir+'temp_CMIP6_global_low_best.csv'
+    esmdat_max_glbl = esm_data_dir+'temp_CMIP6_global_high_best.csv'
     
-    data_esm_min_glbl = np.genfromtxt(esmdat_min_glbl, delimiter=",")[:,1]
-    data_esm_median_glbl = np.genfromtxt(esmdat_median_glbl, delimiter=",")[:,1]
-    data_esm_max_glbl = np.genfromtxt(esmdat_max_glbl, delimiter=",")[:,1]
+    data_esm_min_glbl = np.genfromtxt(esmdat_min_glbl, delimiter=",")[:,0]
+    data_esm_median_glbl = np.genfromtxt(esmdat_median_glbl, delimiter=",")[:,0]
+    data_esm_max_glbl = np.genfromtxt(esmdat_max_glbl, delimiter=",")[:,0]
 
     print('data_esm_min_glbl',data_esm_min_glbl)
     print('data_esm_median_glbl',data_esm_median_glbl)

@@ -135,9 +135,9 @@ for cs in range(2): # For Arctic and global cases
     esmdat_min_arc = esm_data_dir+'temp_CMIP6_Arctic_low.csv'
     esmdat_max_arc = esm_data_dir+'temp_CMIP6_Arctic_high.csv'
     
-    # esmdat_median_arc = esm_data_dir+'temp_CMIP6_Arctic_median_best.csv'
-    # esmdat_min_arc = esm_data_dir+'temp_CMIP6_Arctic_low_best.csv'
-    # esmdat_max_arc = esm_data_dir+'temp_CMIP6_Arctic_high_best.csv'    
+    esmdat_median_arc = esm_data_dir+'temp_CMIP6_Arctic_median_best.csv'
+    esmdat_min_arc = esm_data_dir+'temp_CMIP6_Arctic_low_best.csv'
+    esmdat_max_arc = esm_data_dir+'temp_CMIP6_Arctic_high_best.csv'    
     
     data_esm_min_arc = np.genfromtxt(esmdat_min_arc, delimiter=",")[:,1]
     data_esm_median_arc = np.genfromtxt(esmdat_median_arc, delimiter=",")[:,1]
@@ -154,9 +154,9 @@ for cs in range(2): # For Arctic and global cases
     esmdat_min_glbl = esm_data_dir+'temp_CMIP6_global_low.csv'
     esmdat_max_glbl = esm_data_dir+'temp_CMIP6_global_high.csv'
 
-    # esmdat_median_glbl = esm_data_dir+'temp_CMIP6_global_median_best.csv'
-    # esmdat_min_glbl = esm_data_dir+'temp_CMIP6_global_low_best.csv'
-    # esmdat_max_glbl = esm_data_dir+'temp_CMIP6_global_high_best.csv'
+    esmdat_median_glbl = esm_data_dir+'temp_CMIP6_global_median_best.csv'
+    esmdat_min_glbl = esm_data_dir+'temp_CMIP6_global_low_best.csv'
+    esmdat_max_glbl = esm_data_dir+'temp_CMIP6_global_high_best.csv'
     
     data_esm_min_glbl = np.genfromtxt(esmdat_min_glbl, delimiter=",")[:,1]
     data_esm_median_glbl = np.genfromtxt(esmdat_median_glbl, delimiter=",")[:,1]
@@ -488,14 +488,14 @@ for cs in range(2): # For Arctic and global cases
 #    yticks[ict,:] = [-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5]
 #    yticksx[ict,:] = [-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5]
     if case == 4: 
-      ymin[ict] = -.55
-      ymax[ict] = 3.05
+      ymin[ict] = -.25
+      ymax[ict] = 2.5
       yticks[ict,:8] = [-0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]
       yticksx[ict,:7] = [0.5, 1, 1.5, 2, 2.5, 3, 3.5]
     else:
-      ymin[ict] = -1.1
+      ymin[ict] = -1.0
       if not clean:
-        ymax[ict] = 6.1
+        ymax[ict] = 5.0
         yticks[ict,:8] = [-1, 0, 1, 2, 3, 4, 5, 6]
         yticksx[ict,:8] = [1, 2, 3, 4, 5, 6, 7, 8]
       else:
@@ -643,7 +643,9 @@ for ic in range(nsspy):
 
 ###############################################################################
 def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_splits_neg,spltcolor,spltlabel,xlabelsx_amap,x_amap,xlabelsx_cmip6,x_cmip6,ylabel,title,ymin,ymax,yticks,yticksx,nplt,nsspy,titleinside,region_values_min1,region_values_min2,region_values_net,region_values_max1,region_values_max2,region_values_netx,region_values_minx,region_values_maxx,region_values_nety,region_values_miny,region_values_maxy,temp_off,pextra,prange,legend,cmip6,cmip6_plt,nplt_amap):
-
+  global2050, arctic2050 = [], []
+  g5ae, a5ae = [], []
+    
   nfram = 4
   splthgt_pos       = np.zeros((nfram,nplt_amap,nsspy+1))
   splthgt_neg       = np.zeros((nfram,nplt_amap,nsspy+1))
@@ -861,10 +863,14 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
                                  edgecolors='black', s=60, zorder=9999, marker='.',linewidths=0)
           nrb = nrb + 1
         if cmip6_plt[2]:
+          print('not cmip6 plot [2]', region_values_net[2,nr])
+          global2050 += [region_values_net[2,nr]]
           rects3 = axc.scatter(x[nrc]-dxb, region_values_net[2,nr], c='black', \
                                  edgecolors='black', s=60, zorder=9999, marker='.',linewidths=0)
           nrc = nrc + 1
         if cmip6_plt[3]:
+          print('not cmip6 plot [3]', region_values_net[3,nr])
+          arctic2050 += [region_values_net[3,nr]]
           rects3 = axd.scatter(x[nrd]-dxb, region_values_net[3,nr], c='black', \
                                  edgecolors='black', s=60, zorder=9999, marker='.',linewidths=0)
           nrd = nrd + 1
@@ -883,10 +889,12 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
                                  edgecolors='black', s=60, zorder=9999, marker='.',linewidths=0)
           nrb = nrb + 1
         if not cmip6_plt[2]:
+          print('not cmip6 plot [2]', region_values_net[2,nr])
           rects3 = axc.scatter(x[nrc]-dxb, region_values_net[2,nr], c='black', \
                                  edgecolors='black', s=60, zorder=9999, marker='.',linewidths=0)
           nrc = nrc + 1
         if not cmip6_plt[3]:
+          print('not cmip6 plot [3]', region_values_net[3,nr])
           rects3 = axd.scatter(x[nrd]-dxb, region_values_net[3,nr], c='black', \
                                  edgecolors='black', s=60, zorder=9999, marker='.',linewidths=0)
           nrd = nrd + 1
@@ -900,17 +908,17 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
     for nr in range(len(x)):
       if cmip6[nr]: # Check for CMIP6 Scenario
         # if cmip6_plt[0]:
-        #   print('cmip6_plt[0]')
+        #   print('cmip6 plot [0]')
         #   rects3 = axa.scatter(x[nra]+dxb, data_esm_median[0], c='black', \
         #                          edgecolors='black', s=20, zorder=9999, marker='D',linewidths=0)
         #   nra = nra + 1
         # if cmip6_plt[1]:
-        #   print('cmip6_plt[1]')
+        #   print('cmip6 plot [1]')
         #   rects3 = axb.scatter(x[nrb]+dxb, data_esm_median[1], c='black', \
         #                          edgecolors='black', s=20, zorder=9999, marker='D',linewidths=0)
         #   nrb = nrb + 1
         if cmip6_plt[2]:
-          print('cmip6_plt[2]', data_esm_min_glbl[nr-5], data_esm_median_glbl[nr-5], data_esm_max_glbl[nr-5])
+          print('cmip6 plot [2]', data_esm_min_glbl[nr-5], data_esm_median_glbl[nr-5], data_esm_max_glbl[nr-5])
           rects3 = axc.scatter(x[nrc]+dxb, data_esm_median_glbl[nr-5], c='k', \
                                  edgecolors='black', s=20, zorder=9999, marker='D',linewidths=0)
           # add error bars
@@ -920,7 +928,8 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
                    linewidth=1)
           nrc = nrc + 1
         if cmip6_plt[3]:
-          print('cmip6_plt[3]', data_esm_min_arc[nr-5], data_esm_median_arc[nr-5], data_esm_max_arc[nr-5])
+          print('cmip6 plot [3]', data_esm_min_arc[nr-5], data_esm_max_arc[nr-5])  
+          # print('cmip6 plot [3]', data_esm_min_arc[nr-5], data_esm_median_arc[nr-5], data_esm_max_arc[nr-5])
           rects3 = axd.scatter(x[nrd]+dxb, data_esm_median_arc[nr-5], c='k', \
                                   edgecolors='black', s=20, zorder=9999, marker='D',linewidths=0)
           axd.plot((x[nrd]+dxb)*np.ones(2), 
@@ -985,6 +994,7 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
           rect = patches.Rectangle((x[nra]-dxb-dbx,max(region_values_min1[0,nr],ymin[0])),\
                                2.*dbx,region_values_max1[0,nr]-region_values_min1[0,nr],\
                                fill=False, edgecolor='black', linewidth=1)
+        
           axa.add_patch(rect)
           nra = nra + 1
         if cmip6_plt[1]:
@@ -1007,6 +1017,8 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
           rect = patches.Rectangle((x[nrc]-dxb-dbx,max(region_values_min1[2,nr],ymin[2])),\
                                2.*dbx,region_values_max1[2,nr]-region_values_min1[2,nr],\
                                fill=False, edgecolor='black', linewidth=1)
+          print('cmip6 plot [2] uncertainty',rect.get_height()/2)
+          g5ae += [rect.get_height()/2]
           axc.add_patch(rect)
           nrc = nrc + 1
         if cmip6_plt[3]:
@@ -1018,6 +1030,8 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
           rect = patches.Rectangle((x[nrd]-dxb-dbx,max(region_values_min1[3,nr],ymin[3])),\
                                2.*dbx,region_values_max1[3,nr]-region_values_min1[3,nr],\
                                fill=False, edgecolor='black', linewidth=1)
+          print('cmip6 plot [3] uncertainty',rect.get_height()/2)
+          a5ae += [rect.get_height()/2]
           axd.add_patch(rect)
           nrd = nrd + 1
     nra = 0
@@ -1353,8 +1367,10 @@ def plot_bars(region_values_pos,region_values_neg,region_splits_pos,region_split
   plt.savefig('foo.png', bbox_inches='tight', dpi=600)
   plt.savefig('foo.svg', bbox_inches='tight', dpi=600)
   plt.savefig('foo.pdf', bbox_inches='tight', dpi=600)
-
-
+  
+  # Save results to a text file
+  results = np.array([arctic2050, a5ae, global2050, g5ae])
+  np.savetxt('2050_results_amap.txt', results, fmt='%s')
 
 
 

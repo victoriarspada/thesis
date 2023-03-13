@@ -2,6 +2,8 @@
 """
 @author: Victoria Spada
 SSP Comparisons (Time series)
+
+Same as ssp_time_series_plotter, but without SSP1-1.9
 """
 
 import os
@@ -17,7 +19,7 @@ from regression import *
 from scipy.stats import pearsonr
 
 data_dir = 'cmip6_data/'
-ssp_dirs = ['DATA_ssp119/', 'DATA_ssp126/', 'DATA_ssp245/', 'DATA_ssp370/', 'DATA_ssp585/']
+ssp_dirs = ['DATA_ssp126/', 'DATA_ssp245/', 'DATA_ssp370/', 'DATA_ssp585/']
 n_ssps = len(ssp_dirs)
 
 n_years = 451
@@ -27,7 +29,7 @@ ref_start, ref_end = 1995, 2014
 # Plot time series of SAT by region for CMIP6 (Figure 0)
 fig0, ax0 = plt.subplots(1, 5, figsize=(17,3))
 ax0_ylim = [[2.1, 4.1, 2.1, 2.1, 2.1], [1.1, 2.3, 1.3, 0.8, 0.8]]
-ssp_labels = ['SSP1-1.9 (11)', 'SSP1-2.6 (33)', 'SSP2-4.5 (34)', 'SSP3-7.0 (28)', 'SSP5-8.5 (34)']
+ssp_labels = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
 colors0 = ['green', 'blue', 'darkorange', 'red', 'purple']
 ax0_titles = ['Global mean', 'Arctic mean', 'NH Mid-latitude mean', 
              'Tropical mean', 'SH extratropical mean']
@@ -88,11 +90,11 @@ for n in range(0,len(ax1_xlabels),1):
         ax1[n].xaxis.set_major_locator(MultipleLocator(0.5))
         if n==4:
             ax1[n].yaxis.set_minor_locator(MultipleLocator(0.025))
-            ax1[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        if n==3:
-            ax1[n].yaxis.set_minor_locator(MultipleLocator(0.025))
             ax1[n].yaxis.set_major_locator(MultipleLocator(0.05))
-        if n==2:
+        if n==3:
+            ax1[n].yaxis.set_minor_locator(MultipleLocator(0.005))
+            ax1[n].yaxis.set_major_locator(MultipleLocator(0.01))
+        if n==2: 
             ax1[n].yaxis.set_minor_locator(MultipleLocator(0.05))
             ax1[n].yaxis.set_major_locator(MultipleLocator(0.1))
         else:
@@ -109,10 +111,10 @@ fig3, ax3 = plt.subplots(1, 3, figsize=(13,3.5))
 fig4, ax4 = plt.subplots(1, 3, figsize=(13,3.5))
 fig5, ax5 = plt.subplots(1, 3, figsize=(13,3.5))
 
-ax2_ylim = [[5.0, 8.0, 10.0], [3.0, 6.0, 10.0]] 
-ax2_nylim = [-1, -6, -8]
-ax2_xticklabels = ['SSP1-1.9', 'SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
-ssp_ticks = [0.5, 1.5, 2.5, 3.5, 4.5]
+ax2_ylim = [[4.0, 8.0, 10.0], [3.0, 6.0, 9.0]] 
+ax2_nylim = [-1, -5, -8]
+ax2_xticklabels = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
+ssp_ticks = [0.5, 1.5, 2.5, 3.5]
 ax2_ylabels = ['Future Global SAT Anomaly (°C)', 'Future Arctic SAT Anomaly (°C)', 
              'Future Arctic Amplification']
 ax3_ylabels = ['Future Global SAT Anomaly (°C)', 'Future Regional SAT Anomaly (°C)', 
@@ -153,7 +155,7 @@ for n in range(0,len(ax2_ylabels),1):
            ax2[n].yaxis.set_minor_locator(MultipleLocator(1.0))
            ax2[n].yaxis.set_major_locator(MultipleLocator(2.0))  
 
-    ax2[n].set_xlim([0, 5.0])
+    ax2[n].set_xlim([0, 4.0])
     ax2[n].set_xticks(ticks=ssp_ticks, labels=ax2_xticklabels, 
                       rotation=20, minor=False)
     ax2[n].tick_params(direction="in", top=True, 
@@ -162,13 +164,13 @@ for n in range(0,len(ax2_ylabels),1):
     ax2[n].axhline(0, color='grey', linewidth=0.8)   
     
 # Set axis titles and ticks for each subplot (NH Amplification) (Figure 3)
-ax3_ylim = [[5.0, 4.0, 5.0], [3.0, 4.0, 7.0]] 
-ax3_nylim = [-1, -3, -9]
+ax3_ylim = [[4.0, 4.0, 5.0], [3.0, 3.0, 8.0]] 
+ax3_nylim = [-1, -1, -9]
 for n in range(0,len(ax3_ylabels),1):
     if project_end==2050:
         ax3[n].set_ylim([-1.0, ax3_ylim[0][n]])
         if n==2:
-            ax3[n].set_ylim([-3.0, ax3_ylim[0][n]])
+            ax3[n].set_ylim([-1.0, ax3_ylim[0][n]])
         ax3[n].yaxis.set_minor_locator(MultipleLocator(0.25))
         ax3[n].yaxis.set_major_locator(MultipleLocator(1.0))
     else:
@@ -182,7 +184,7 @@ for n in range(0,len(ax3_ylabels),1):
             ax3[n].yaxis.set_minor_locator(MultipleLocator(1.0))
             ax3[n].yaxis.set_major_locator(MultipleLocator(2.0))  
 
-    ax3[n].set_xlim([0, 5.0])
+    ax3[n].set_xlim([0, 4.0])
     ax3[n].set_xticks(ticks=ssp_ticks, labels=ax2_xticklabels, 
                       rotation=20, minor=False)
     ax3[n].tick_params(direction="in", top=True, 
@@ -191,13 +193,13 @@ for n in range(0,len(ax3_ylabels),1):
     ax3[n].axhline(0, color='grey', linewidth=0.8)      
     
 # Set axis titles and ticks for each subplot (Tropical Amplification) (Figure 4)
-ax4_ylim = [[5.0, 4.0, 4.0], [3.0, 3.0, 4.0]] 
-ax4_nylim = [-1, -1, -4]
+ax4_ylim = [[4.0, 4.0, 3.0], [3.0, 3.0, 4.0]] 
+ax4_nylim = [-1, -1, -3]
 for n in range(0,len(ax4_ylabels),1):
     if project_end==2050:
         ax4[n].set_ylim([-1.0, ax4_ylim[0][n]])
         if n==2:
-            ax4[n].set_ylim([-4.0, ax4_ylim[0][n]])
+            ax4[n].set_ylim([-3.0, ax4_ylim[0][n]])
         ax4[n].yaxis.set_minor_locator(MultipleLocator(0.25))
         ax4[n].yaxis.set_major_locator(MultipleLocator(1.0))
     else:
@@ -211,7 +213,7 @@ for n in range(0,len(ax4_ylabels),1):
             ax4[n].yaxis.set_minor_locator(MultipleLocator(1.0))
             ax4[n].yaxis.set_major_locator(MultipleLocator(2.0))  
 
-    ax4[n].set_xlim([0, 5.0])
+    ax4[n].set_xlim([0, 4.0])
     ax4[n].set_xticks(ticks=ssp_ticks, labels=ax2_xticklabels, 
                       rotation=20, minor=False)
     ax4[n].tick_params(direction="in", top=True, 
@@ -220,14 +222,12 @@ for n in range(0,len(ax4_ylabels),1):
     ax4[n].axhline(0, color='grey', linewidth=0.8)   
 
 # Set axis titles and ticks for each subplot (SH Amplification) (Figure 5)
-ax5_ylim = [[5.0, 5.0, 6.0], [3.0, 4.0, 6.0]] 
-ax5_nylim = [-1, -2, -8]
+ax5_ylim = [[4.0, 4.5, 5.0], [3.0, 4.0, 6.0]] 
+ax5_nylim = [-1, -2, -2]
 for n in range(0,len(ax5_ylabels),1):
     if project_end==2050:
         ax5[n].set_ylim([-1.0, ax5_ylim[0][n]])
-        if n==2:
-            ax5[n].set_ylim([-4.0, ax5_ylim[0][n]])
-        if n==1:
+        if n==2 or n==1:
             ax5[n].set_ylim([-2, ax5_ylim[0][n]])
         ax5[n].yaxis.set_minor_locator(MultipleLocator(0.25))
         ax5[n].yaxis.set_major_locator(MultipleLocator(1.0))
@@ -242,7 +242,7 @@ for n in range(0,len(ax5_ylabels),1):
             ax5[n].yaxis.set_minor_locator(MultipleLocator(1.0))
             ax5[n].yaxis.set_major_locator(MultipleLocator(2.0))  
 
-    ax5[n].set_xlim([0, 5.0])
+    ax5[n].set_xlim([0, 4.0])
     ax5[n].set_xticks(ticks=ssp_ticks, labels=ax2_xticklabels, 
                       rotation=20, minor=False)
     ax5[n].tick_params(direction="in", top=True, 
@@ -286,7 +286,7 @@ for s in range(0, n_ssps, 1):
     curr_files = os.listdir(curr_data_dir)
     curr_files.remove('CanESM5') # folder with CanESM files copied
     curr_files.remove('Extras') # folders with duplicates
-
+    # print(curr_files)
     n_files = len(curr_files)
     
     base_tas = np.zeros((n_regions, n_years)) # base SAT values from ref. period
@@ -427,8 +427,8 @@ for s in range(0, n_ssps, 1):
             # print(s,'Arctic Pearsons correlation: %.2f' % corr)
             
             ax1[r-1].text(s='m =  %.2f' % lsr[0] + ' ± %.2f' % lsr[2],
-                          x=0.11, y=4.1-s*0.26,
-                          # x=0.06, y=2.15-s*0.14,
+                          # x=0.12, y=4.1-s*0.26,
+                          x=0.06, y=2.1-s*0.14,
                           color=colors0[s],
                           fontsize=8)
             slopes[r-1,s] = lsr[0]
@@ -445,8 +445,8 @@ for s in range(0, n_ssps, 1):
             # print(s,'NH Pearsons correlation: %.2f' % corr)
             
             ax1[r-1].text(s='m =  %.2f' % lsr[0] + ' ± %.2f' % lsr[2],
-                          x=0.11, y=2.3-s*0.15,
-                          #x=0.06, y=1.15-s*0.08,
+                          #x=0.12, y=2.3-s*0.15,
+                          x=0.06, y=1.15-s*0.08,
                           color=colors0[s],
                           fontsize=8)
             slopes[r-1,s] = lsr[0]
@@ -463,8 +463,8 @@ for s in range(0, n_ssps, 1):
             # print(s,'Trop Pearsons correlation: %.2f' % corr)
             
             ax1[r-1].text(s='m =  %.2f' % lsr[0] + ' ± %.2f' % lsr[2],
-                          x=0.11, y=1.85-s*0.15,
-                          #x=0.06, y=0.74-s*0.05,
+                          # x=0.12, y=1.85-s*0.15,
+                          x=0.06, y=0.74-s*0.05,
                           color=colors0[s],
                           fontsize=8)
             slopes[r-1,s] = lsr[0]
@@ -481,13 +481,14 @@ for s in range(0, n_ssps, 1):
             # print(s,'SH Pearsons correlation: %.2f' % corr)
             
             ax1[r-1].text(s='m =  %.2f' % lsr[0] + ' ± %.2f' % lsr[2],
-                          x=0.11, y=1.4-s*0.1,
-                          #x=0.06, y=0.7-s*0.05,
+                          #x=0.12, y=1.35-s*0.1,
+                          x=0.06, y=0.7-s*0.05,
                           color=colors0[s],
                           fontsize=8)
             slopes[r-1,s] = lsr[0]
             slopes_sigma[r-1,s] = lsr[2]
-            
+        if r>0:
+            print(' %.2f' % lsr[0] + ' ± %.2f' % lsr[2])
         # Plots of regional amplification until 2050
         if r==0:
             # plot the spread for the SSP in the current region
@@ -655,7 +656,7 @@ for s in range(0, n_ssps, 1):
         ax0[0].text(x=2000, y=1.9-s*0.2, s=ssp_labels[s], color=colors0[s], fontweight='bold')
         ax1[3].text(x=2.15, y=1.4-s*0.15, s=ssp_labels[s], color=colors0[s], fontsize='medium', fontweight='bold')
     else:
-        ax0[4].text(x=2038, y=0.7-s*0.12, s=ssp_labels[s], color=colors0[s], fontsize='medium', fontweight='bold')
+        ax0[0].text(x=2000, y=0.95-s*0.12, s=ssp_labels[s], color=colors0[s], fontsize='medium', fontweight='bold')
         ax1[3].text(x=1.05, y=0.7-s*0.1, s=ssp_labels[s], color=colors0[s], fontsize='medium', fontweight='bold')
 
 # Compute average ampliifcations for each region (across the SSPs)
@@ -679,17 +680,17 @@ for r in range(0, n_regions-1, 1):
     avg_m_uncertainties[r] = (1/n_ssps)*np.sqrt(
           np.sum( np.square(slopes_sigma[r,:]) ) # propagate uncertainty (uncertainty is the std of each ensemble mean amp)
         ) 
-    print(r, 'mean slope = {:.2f}'.format(avg_m[r]), 
-          '\nstddev = {:.2f}'.format(avg_m_std[r]), 
-          '\nuncertainty = {:.2f} \n'.format(avg_m_uncertainties[r]))
+    # print(r, 'mean slope = {:.2f}'.format(avg_m[r]), 
+    #       '\nstddev = {:.2f}'.format(avg_m_std[r]), 
+    #       '\nuncertainty = {:.2f} \n'.format(avg_m_uncertainties[r]))
     
 
-fig0.savefig('sat_anomalies_cmip6_ensemble_'+str(project_end)+'.png')
-fig1.savefig('regional_sat_anomalies_vs_global_cmip6_ensemble_'+str(project_end)+'.png')
-fig2.savefig('arctic_amplification_cmip6_ensemble_'+str(project_end)+'.png')
-fig3.savefig('nh_amplification_cmip6_ensemble_'+str(project_end)+'.png')
-fig4.savefig('tropical_amplification_cmip6_ensemble_'+str(project_end)+'.png')
-fig5.savefig('sh_amplification_cmip6_ensemble_'+str(project_end)+'.png')    
+fig0.savefig('./sat_anomalies_cmip6_ensemble_'+str(project_end)+'.png')
+fig1.savefig('./regional_sat_anomalies_vs_global_cmip6_ensemble_'+str(project_end)+'.png')
+fig2.savefig('./arctic_amplification_cmip6_ensemble_'+str(project_end)+'.png')
+fig3.savefig('./nh_amplification_cmip6_ensemble_'+str(project_end)+'.png')
+fig4.savefig('./tropical_amplification_cmip6_ensemble_'+str(project_end)+'.png')
+fig5.savefig('./sh_amplification_cmip6_ensemble_'+str(project_end)+'.png')    
     
     
     

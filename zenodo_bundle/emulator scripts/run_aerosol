@@ -1,0 +1,16 @@
+#!/bin/sh
+set -ex
+# export PYTHONPATH=C:/Python38
+
+scenarioi='SSP119 SSP126 SSP245 SSP370 SSP585' 
+realmi='mean low_ecs high_ecs low_aci_s high_aci_s low_aci_bc high_aci_bc low_aci_oc high_aci_oc low_ari_s high_ari_s low_ari_bc high_ari_bc low_ari_oc high_ari_oc low_alb_s high_alb_s low_alb_bc high_alb_bc low_alb_oc high_alb_oc'
+#realmi='high_aci_bc high_ari_oc'
+echo 'scenario,realm' > tmpdat0
+for scenariot in $scenarioi ; do
+  for realmt in $realmi ; do
+     echo ${scenariot}','${realmt} > tmpdat
+     cat tmpdat0 tmpdat > emulator.csv
+     python3 emulator_aerosol_.py
+  done
+done
+rm -rf tmpdat0 tmpdat

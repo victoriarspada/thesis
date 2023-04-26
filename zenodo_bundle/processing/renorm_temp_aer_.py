@@ -2,8 +2,9 @@
 Author: Knut von Salzen
 Edited by: Victoria Spada
 
-Same functionality as renorm_temp_aer but saves the renormed time series for all
-regions simulated by the emulator
+Uses the AMAP emulator aerosol output as input to generate normalized temperatures, 
+relative to 1995-2014, which is the reference time period of the ESM simulations, 
+allowing direct comparisons between the AMAP emulator and CMIP6 datasets.
 """
 import matplotlib
 matplotlib.use('Agg')
@@ -46,7 +47,7 @@ def get_coord_attr(varn,ncoord,ncfile):                         # get names asso
 
 # simulated temperature change due to aerosol
 
-case = 0
+case = 1
 datadir = 'C:/Users/victo/Downloads/EngSci Year 4 Sem 1/ESC499 - Thesis/zenodo_bundle/AMAP Projections/'
 
 if case == 0:
@@ -261,68 +262,31 @@ for nz in range(nszen):
   if nz==0:
     temp_mod_in_aer_ARCTIC = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
     temp_mod_in_aer_glb = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-    temp_mod_in_aer_NHML = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-    temp_mod_in_aer_TROPICS = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-    temp_mod_in_aer_SH = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-    
   temp_mod_in_aer_ARCTIC[nz,:,:,:,:,:] = ncfile.variables["temp_ARCTIC"][:]
   temp_mod_in_aer_glb[nz,:,:,:,:,:] = ncfile.variables["temp_glb"][:]
-  temp_mod_in_aer_NHML[nz,:,:,:,:,:] = ncfile.variables["temp_NHML"][:]
-  temp_mod_in_aer_TROPICS[nz,:,:,:,:,:] = ncfile.variables["temp_TROPICS"][:]
-  temp_mod_in_aer_SH[nz,:,:,:,:,:] = ncfile.variables["temp_SH"][:]
-  
   fillvin = ncfile.variables["temp_glb"]._FillValue
-  # Arctic masks
   mask = np.array(temp_mod_in_aer_ARCTIC[nz,:,:,:,:,:])
   temp_mod_in_aer_ARCTIC[nz,:,:,:,:,:] = np.where(mask==fillvin, 0., mask).copy()
-  # Global masks
   mask = np.array(temp_mod_in_aer_glb[nz,:,:,:,:,:])
   temp_mod_in_aer_glb[nz,:,:,:,:,:] = np.where(mask==fillvin, 0., mask).copy()
-  # NHML masks
-  mask = np.array(temp_mod_in_aer_NHML[nz,:,:,:,:,:])
-  temp_mod_in_aer_NHML[nz,:,:,:,:,:] = np.where(mask==fillvin, 0., mask).copy()
-  # Tropics masks
-  mask = np.array(temp_mod_in_aer_TROPICS[nz,:,:,:,:,:])
-  temp_mod_in_aer_TROPICS[nz,:,:,:,:,:] = np.where(mask==fillvin, 0., mask).copy()
-  # SH masks
-  mask = np.array(temp_mod_in_aer_SH[nz,:,:,:,:,:])
-  temp_mod_in_aer_SH[nz,:,:,:,:,:] = np.where(mask==fillvin, 0., mask).copy()
 
 temp_mod_avg_ARCTIC = np.zeros((nszen,nreg,nsec,nfsp,nssp,nproc))
 temp_mod_avg_glb = np.zeros((nszen,nreg,nsec,nfsp,nssp,nproc))
-temp_mod_avg_NHML = np.zeros((nszen,nreg,nsec,nfsp,nssp,nproc))
-temp_mod_avg_TROPICS = np.zeros((nszen,nreg,nsec,nfsp,nssp,nproc))
-temp_mod_avg_SH = np.zeros((nszen,nreg,nsec,nfsp,nssp,nproc))
-
 ntt = 0
 for nt in range(ntime):
   if (int(str_year[nt]) >= year_starty) and (int(str_year[nt]) <= year_endy):
     temp_mod_avg_ARCTIC[:,:,:,:,:,:] = temp_mod_avg_ARCTIC[:,:,:,:,:,:] + temp_mod_in_aer_ARCTIC[:,nt,:,:,:,:,:]
     temp_mod_avg_glb[:,:,:,:,:,:] = temp_mod_avg_glb[:,:,:,:,:,:] + temp_mod_in_aer_glb[:,nt,:,:,:,:,:]
-    temp_mod_avg_NHML[:,:,:,:,:,:] = temp_mod_avg_NHML[:,:,:,:,:,:] + temp_mod_in_aer_NHML[:,nt,:,:,:,:,:]
-    temp_mod_avg_TROPICS[:,:,:,:,:,:] = temp_mod_avg_TROPICS[:,:,:,:,:,:] + temp_mod_in_aer_TROPICS[:,nt,:,:,:,:,:]
-    temp_mod_avg_SH[:,:,:,:,:,:] = temp_mod_avg_SH[:,:,:,:,:,:] + temp_mod_in_aer_SH[:,nt,:,:,:,:,:]
-    
     ntt = ntt + 1
-    
 temp_mod_avg_ARCTIC = temp_mod_avg_ARCTIC/ntt
 temp_mod_avg_glb = temp_mod_avg_glb/ntt
-temp_mod_avg_NHML = temp_mod_avg_NHML/ntt
-temp_mod_avg_TROPICS = temp_mod_avg_TROPICS/ntt
-temp_mod_avg_SH = temp_mod_avg_SH/ntt
 
 temp_ARCTIC = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
 temp_glb = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-temp_NHML = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-temp_TROPICS = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
-temp_SH = np.zeros((nszen,ntime,nreg,nsec,nfsp,nssp,nproc))
 
 for nt in range(ntime):
   temp_ARCTIC[:,nt,:,:,:,:,:] = temp_mod_in_aer_ARCTIC[:,nt,:,:,:,:,:] - temp_mod_avg_ARCTIC[:,:,:,:,:,:]
   temp_glb[:,nt,:,:,:,:,:] = temp_mod_in_aer_glb[:,nt,:,:,:,:,:] - temp_mod_avg_glb[:,:,:,:,:,:]
-  temp_NHML[:,nt,:,:,:,:,:] = temp_mod_in_aer_NHML[:,nt,:,:,:,:,:] - temp_mod_avg_NHML[:,:,:,:,:,:]
-  temp_TROPICS[:,nt,:,:,:,:,:] = temp_mod_in_aer_TROPICS[:,nt,:,:,:,:,:] - temp_mod_avg_TROPICS[:,:,:,:,:,:]
-  temp_SH[:,nt,:,:,:,:,:] = temp_mod_in_aer_SH[:,nt,:,:,:,:,:] - temp_mod_avg_SH[:,:,:,:,:,:]
 
 # output
 
@@ -347,43 +311,19 @@ region = xr.DataArray(region,name='region', dims=('region'), coords={'region':re
 sector = xr.DataArray(sector,name='sector', dims=('sector'), coords={'sector':sector}, \
                       attrs={'long_name':"Source sectors: 1 - SURF, 2 - FLAR, 3 - FIRE, 4 - SHIP", 'standard_name':"sector"})
 for nz in range(nszen):
-  # Arctic dataset
   ds1 = xr.Dataset({'temp_ARCTIC': (['time','region','sector','frcspec','srcspec','process'], temp_ARCTIC[nz,:,:,:,:,:,:])}, coords={'time':str_year,'region':region,'sector':sector,'frcspec':frcspec,'srcspec':srcspec,'process':process})
   ds1.temp_ARCTIC.attrs = {('long_name', \
                             'Arctic temperature perturbation associated with regional aerosol emissions, relative to '+str(year_starty)+'-'+str(year_endy)), \
-                 ('standard_name', 'ARCTIC_temperature'), \
+                 ('standard_name', 'Arctic_temperature'), \
                  ('units', 'K'), \
                  ('_FillValue', fillv)}
-  # Global dataset
   ds2 = xr.Dataset({'temp_glb': (['time','region','sector','frcspec','srcspec','process'], temp_glb[nz,:,:,:,:,:,:])}, coords={'time':str_year,'region':region,'sector':sector,'frcspec':frcspec,'srcspec':srcspec,'process':process})
   ds2.temp_glb.attrs = {('long_name', \
                             'Global temperature perturbation associated with regional aerosol emissions, relative to '+str(year_starty)+'-'+str(year_endy)), \
-                 ('standard_name', 'glb_temperature'), \
-                 ('units', 'K'), \
-                 ('_FillValue', fillv)}
-  # NHML dataset
-  ds3 = xr.Dataset({'temp_NHML': (['time','region','sector','frcspec','srcspec','process'], temp_NHML[nz,:,:,:,:,:,:])}, coords={'time':str_year,'region':region,'sector':sector,'frcspec':frcspec,'srcspec':srcspec,'process':process})
-  ds3.temp_NHML.attrs = {('long_name', \
-                            'NHML temperature perturbation associated with regional aerosol emissions, relative to '+str(year_starty)+'-'+str(year_endy)), \
-                 ('standard_name', 'NHML_temperature'), \
-                 ('units', 'K'), \
-                 ('_FillValue', fillv)}
-  # Tropics dataset
-  ds4 = xr.Dataset({'temp_TROPICS': (['time','region','sector','frcspec','srcspec','process'], temp_TROPICS[nz,:,:,:,:,:,:])}, coords={'time':str_year,'region':region,'sector':sector,'frcspec':frcspec,'srcspec':srcspec,'process':process})
-  ds4.temp_TROPICS.attrs = {('long_name', \
-                            'Tropical temperature perturbation associated with regional aerosol emissions, relative to '+str(year_starty)+'-'+str(year_endy)), \
                  ('standard_name', 'Arctic_temperature'), \
                  ('units', 'K'), \
                  ('_FillValue', fillv)}
-  # SH dataset
-  ds5 = xr.Dataset({'temp_SH': (['time','region','sector','frcspec','srcspec','process'], temp_SH[nz,:,:,:,:,:,:])}, coords={'time':str_year,'region':region,'sector':sector,'frcspec':frcspec,'srcspec':srcspec,'process':process})
-  ds5.temp_SH.attrs = {('long_name', \
-                            'SH temperature perturbation associated with regional aerosol emissions, relative to '+str(year_starty)+'-'+str(year_endy)), \
-                 ('standard_name', 'Arctic_temperature'), \
-                 ('units', 'K'), \
-                 ('_FillValue', fillv)}
-  
-  ds = xr.merge([ds1, ds2, ds3, ds4, ds5])
+  ds = xr.merge([ds1, ds2])
   ds.attrs = {('comment', 'contact: knut.vonsalzen@canada.ca'),
             ('data_licence', '1) GRANT OF LICENCE - The Government of Canada (Environment Canada) is the \
 owner of all intellectual property rights (including copyright) that may exist in this Data \
@@ -397,6 +337,5 @@ warranty, either express or implied, including but not limited to, warranties of
 merchantability and fitness for a particular purpose. In no event will Environment Canada \
 be liable for any indirect, special, consequential or other damages attributed to the \
 Licensee\'s use of the Data product.')}
-  outfile = datadir+modtemp[nz]+'_'+str(year_starty)+'_'+str(year_endy)+'_all.nc'
-  print(outfile)
+  outfile = datadir+modtemp[nz]+'_'+str(year_starty)+'_'+str(year_endy)+'.nc'
   ds.to_netcdf(outfile, unlimited_dims=["time"])

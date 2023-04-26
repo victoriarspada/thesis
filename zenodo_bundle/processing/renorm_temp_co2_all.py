@@ -3,7 +3,7 @@ Author: Knut von Salzen
 Edited by: Victoria Spada
 
 Same functionality as renorm_temp_co2 but saves the renormed time series for all
-regions simulated by the emulator
+regions simulated by the emulator.
 """
 import matplotlib
 matplotlib.use('Agg')
@@ -45,21 +45,27 @@ def get_coord_attr(varn,ncoord,ncfile):                         # get names asso
   return scoord
 
 # simulated temperature change due to CO2
-datadir = 'C:/Users/victo/Downloads/EngSci Year 4 Sem 1/ESC499 - Thesis/zenodo_bundle/AMAP Projections/'
+basedir = 'C:/Users/victo/Downloads/EngSci Year 4 Sem 1/ESC499 - Thesis/zenodo_bundle/AMAP Projections/'
+datadirs = ['Mod1/', 'Mod2/', 'Mod3/', '']
+outdirs = ['Renormed Mod1/', 'Renormed Mod2/', 'Renormed Mod3/', 'Renormed All']
+
+c = 0 # case setting
+datadir = basedir + datadirs[c]
+outdir = basedir + outdirs[c]
 
 modtemp = [ \
-'temp_co2_SSP119_zero_emulator_high_ecs', \
-'temp_co2_SSP119_zero_emulator_low_ecs', \
-'temp_co2_SSP119_zero_emulator_mean', \
-'temp_co2_SSP126_zero_emulator_high_ecs', \
-'temp_co2_SSP126_zero_emulator_low_ecs', \
-'temp_co2_SSP126_zero_emulator_mean', \
-'temp_co2_SSP245_zero_emulator_high_ecs', \
-'temp_co2_SSP245_zero_emulator_low_ecs', \
-'temp_co2_SSP245_zero_emulator_mean', \
-'temp_co2_SSP370_zero_emulator_high_ecs', \
-'temp_co2_SSP370_zero_emulator_low_ecs', \
-'temp_co2_SSP370_zero_emulator_mean', \
+# 'temp_co2_SSP119_zero_emulator_high_ecs', \
+# 'temp_co2_SSP119_zero_emulator_low_ecs', \
+# 'temp_co2_SSP119_zero_emulator_mean', \
+# 'temp_co2_SSP126_zero_emulator_high_ecs', \
+# 'temp_co2_SSP126_zero_emulator_low_ecs', \
+# 'temp_co2_SSP126_zero_emulator_mean', \
+# 'temp_co2_SSP245_zero_emulator_high_ecs', \
+# 'temp_co2_SSP245_zero_emulator_low_ecs', \
+# 'temp_co2_SSP245_zero_emulator_mean', \
+# 'temp_co2_SSP370_zero_emulator_high_ecs', \
+# 'temp_co2_SSP370_zero_emulator_low_ecs', \
+# 'temp_co2_SSP370_zero_emulator_mean', \
 'temp_co2_SSP585_zero_emulator_high_ecs', \
 'temp_co2_SSP585_zero_emulator_low_ecs', \
 'temp_co2_SSP585_zero_emulator_mean' ]
@@ -220,7 +226,7 @@ warranty, either express or implied, including but not limited to, warranties of
 merchantability and fitness for a particular purpose. In no event will Environment Canada \
 be liable for any indirect, special, consequential or other damages attributed to the \
 Licensee\'s use of the Data product.')}
-  outdir = 'Renormed All/'
+  outdir = 'Renormed Mod1/'
   outfile = './'+modtemp[nz]+'_'+str(year_starty)+'_'+str(year_endy)+'_all.nc'
   print(outfile)
   ds.to_netcdf(outfile, unlimited_dims=["time"])

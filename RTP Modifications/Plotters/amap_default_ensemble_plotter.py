@@ -1,22 +1,28 @@
 # -*- coding: utf-8 -*-
 """
 @author: Victoria Spada
-SSP Comparisons (Time series)
 
-Same as ssp_time_series_plotter_amap but without SSP1-1.9
+This plotter takes the results of the default AMAP emulator for 4 SSPs, and 
+creates 6 figures.
+
+A reduced major axis fit is performed for each of the SSPs' 
+regional versus global SAT anomalies over 2015-2050, and the results are plotted
+for each of the 4 regions.
+
+The spread of Arctic, NHML, Tropical, and SH SAT anomalies and regional 
+amplifications for each SSP are also plotted for the year 2050. 
+CMIP6 ensemble results are also included for comparison.
 """
 
 import os
-import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import MultipleLocator
-import xarray as xr
 from netCDF4 import Dataset # http://unidata.github.io/netcdf4-python//
-import re
-import csv
 from regression import *
+from rma import * 
 from scipy.stats import pearsonr
+import matplotlib.gridspec as gridspec
 
 data_dir = 'AMAP Projections/Renormed Mod1 Ensemble/'
 data_dir = 'AMAP Projections/Renormed Ensemble All/'
@@ -25,13 +31,15 @@ n_regions = len(regions) # includes global
 
 ssps = ['SSP126', 'SSP245', 'SSP370', 'SSP585']
 ssp_labels = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
-colors0 = ['green', 'blue', 'darkorange', 'red', 'purple']
+colors0 = ['seagreen', 'midnightblue', 'darkgoldenrod', 'firebrick', 'rebeccapurple']
+colors0 = ['rebeccapurple', 'seagreen', 'darkgoldenrod', 'crimson', 'seagreen']
+
 fname_prefix = 'dtemp_'
 n_ssps = len(ssps)
 
 # Arrays for computing region median time series
 n_years = 61
-project_start, project_end = 2015, 2030
+project_start, project_end = 2015, 2050
 ref_start, ref_end = 1995, 2014
 years = np.arange(1990, 2051, 1) # years emulated by the AMAP emulator
 li_years = list(years)
@@ -48,50 +56,23 @@ slopes_sigma = np.zeros((n_regions-1, n_ssps)) # Propagated uncertainty for the 
 
 n_ensemble = 24 # number of ensemble members
 
-# # Plot the time series of the global and regional temperatures for each SSP
-# fig0, ax0 = plt.subplots(1, 5, figsize=(17,3))
-# ax0_ylim = [[2.1, 4.1, 2.1, 2.1, 2.1], [1.1, 2.3, 1.3, 0.8, 0.8]]
-# ssp_labels = ['SSP1-2.6', 'SSP2-4.5', 'SSP3-7.0', 'SSP5-8.5']
-# colors0 = ['green', 'blue', 'darkorange', 'red', 'purple']
-# ax0_titles = ['Global mean', 'Arctic mean', 'NH Mid-latitude mean', 
-#              'Tropical mean', 'SH extratropical mean']
-# ax0_ylabel = 'SAT Anomaly (°C)'
-# suptitle0 = 'SAT Anomalies of CMIP6 Ensemble'
-# fig0.suptitle(suptitle0, x=0.32, y=1.25)
-# fig0.subplots_adjust(left=0.0,
-#                     right=0.7,
-#                     top=1.1,
-#                     wspace=0.4,
-#                     hspace=0.2)
-
-# # Set axis titles and ticks for each region (Figure 0)
-# ax0[0].set_ylabel(ax0_ylabel)
-# for n in range(0,len(ax0_titles),1):
-#     if project_end==2050:
-#         ax0[n].set_ylim([-0.7,ax0_ylim[0][n]])
-#     else:
-#         ax0[n].set_ylim([-0.7,ax0_ylim[1][n]])
-#     ax0[n].set_xlim([1996,project_end+5])
-#     ax0[n].set_title(ax0_titles[n], fontsize='medium')
-#     ax0[n].xaxis.set_minor_locator(MultipleLocator(2))
-#     if project_end==2050:
-#         ax0[n].xaxis.set_major_locator(MultipleLocator(15))
-#     else:
-#         ax0[n].xaxis.set_major_locator(MultipleLocator(10))
-#     ax0[n].yaxis.set_minor_locator(MultipleLocator(0.1))
-#     ax0[n].yaxis.set_major_locator(MultipleLocator(0.5))
-#     ax0[n].tick_params(direction="in", which="both", top=True, 
-#                       bottom=True, left=True, right=True)
-#     ax0[n].axhline(0, color='black', linewidth=0.8) 
-
 # Plot regional SAT anomalies vs the global SAT anomalies (Figure 1)
-fig1, ax1 = plt.subplots(1, 4, figsize=(11.5,3.5))
-ax1_ylim = [[5.0, 4.0, 3.0, 2.0], [2.25, 1.25, 0.80, 0.75]]
-ax1_xlabels = ['Arctic SAT Anomaly (°C)', 'NH Mid-latitude SAT Anomaly (°C)', 
-             'Tropical SAT Anomaly (°C)', 'SH extratropical SAT Anomaly (°C)']
+# fig1, ax1 = plt.subplots(1, 4, figsize=(11.5,3.5))
+fig1 = plt.figure(figsize=(6,6)) #, tight_layout=True)
+gs = gridspec.GridSpec(2,2)
+axs1 = fig1.add_subplot(gs[0, 0], )
+axs2 = fig1.add_subplot(gs[0, 1])
+axs3 = fig1.add_subplot(gs[1, 0])
+axs4 = fig1.add_subplot(gs[1, 1])
+gs.update(wspace=0.4, hspace=0.4)
+ax1 = [axs1, axs2, axs3, axs4]
+
+ax1_ylim = [[5.0, 3.7, 3.0, 1.8], [2.25, 1.25, 0.80, 0.75]]
+ax1_xlabels = ['Arctic SAT Anomaly (°C)', 'NHML SAT Anomaly (°C)', 
+             'Tropical SAT Anomaly (°C)', 'SH SAT Anomaly (°C)']
 ax1_ylabel = 'Global SAT Anomaly (°C)'
-suptitle1 = 'Regional SAT Anomalies vs Global Anomaly of AMAP Ensemble ('+str(project_start)+' - '+str(project_end)+')'
-fig1.suptitle(suptitle1)
+suptitle1 = 'Regional SAT Anomalies vs Global Anomaly of AMAP Ensemble ('+str(project_start)+' - '+str(project_end)+')\n Relative to 1995-2014'
+fig1.suptitle(suptitle1, y=0.98)
 fig1.subplots_adjust(wspace=0.3)
     
 # Set axis titles and ticks for each region (Figure 1)
@@ -133,9 +114,16 @@ fig3, ax3 = plt.subplots(1, 3, figsize=(13,3.5))
 fig4, ax4 = plt.subplots(1, 3, figsize=(13,3.5))
 fig5, ax5 = plt.subplots(1, 3, figsize=(13,3.5))
 
-fig6, ax6 = plt.subplots(1, 5, figsize=(17,3.5))
-fig6.subplots_adjust(wspace=0.3)
-
+fig6 = plt.figure(figsize=(11,7), tight_layout=True)
+gs = gridspec.GridSpec(2, 6)
+gs.update(wspace=0.8, hspace=0.3)
+axs1 = fig6.add_subplot(gs[0, :2], )
+axs2 = fig6.add_subplot(gs[0, 2:4])
+axs3 = fig6.add_subplot(gs[0, 4:])
+axs4 = fig6.add_subplot(gs[1, 1:3])
+axs5 = fig6.add_subplot(gs[1, 3:5])
+ax6 = [axs1, axs2, axs3, axs4, axs5]
+    
 ax2_ylim = [[4.0, 7.0, 1.9], [3.0, 4.0, 2.1]]
 ax3_ylim = [[4.0, 5.0, 1.5], [3.0, 3.0, 1.5]]
 ax4_ylim = [[4.0, 4.0, 1.1], [3.0, 2.0, 1.1]]
@@ -159,35 +147,31 @@ ax6_ylabels = ['Future Global SAT Anomaly (°C)', 'Arctic Amplification', 'NHML 
                'Tropical Amplification', 'SH Amplification']
 
 region_names = ['Arctic', 'NH Midlatitudes', 'Tropical', 'SH Extratropical']
-suptitle2 = ' SAT Anomalies vs Global Anomaly of AMAP Ensemble ('+str(project_start)+' - '+str(project_end)+')'
-suptitle3 = 'AMAP Emulator Regional SAT Amplification ('+str(project_start)+' - '+str(project_end)+')'
-
+suptitle2 = ' SAT Anomalies vs Global Anomaly of AMAP Ensemble ('+str(project_end)+')'
+suptitle6 = 'AMAP Emulator Regional SAT Amplification ('+str(project_end)+')'
 fig2.suptitle(region_names[0]+suptitle2)
 fig3.suptitle(region_names[1]+suptitle2)
 fig4.suptitle(region_names[2]+suptitle2)
 fig5.suptitle(region_names[3]+suptitle2)
-fig6.suptitle(suptitle3)
+fig6.suptitle(suptitle6, y=0.93, fontsize='large')
 
 fig2.subplots_adjust(wspace=0.3)
 fig3.subplots_adjust(wspace=0.3)
 fig4.subplots_adjust(wspace=0.3)
 fig5.subplots_adjust(wspace=0.3)
+fig6.subplots_adjust(wspace=0.35)
 
 for n in range(0,len(ax6_ylabels),1):
-    # ax6[n].set_ylim([-0.5, ax6_ylim[0][n]])
-    # if n!=0:     
-    #     ax6[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-    #     ax6[n].yaxis.set_major_locator(MultipleLocator(0.025))
     if n==0:
         ax6[n].yaxis.set_minor_locator(MultipleLocator(0.1))
         ax6[n].yaxis.set_major_locator(MultipleLocator(0.5))
-    # ax6[0].axhline(0, color='grey') 
     ax6[n].set_xticks(ticks=ssp_ticks, labels=ax2_xticklabels, 
               rotation=20, minor=False)
 
     ax6[n].tick_params(direction="in", top=True, 
                   bottom=True, left=True, right=True)
     ax6[n].set_ylabel(ax6_ylabels[n])
+    ax6[n].grid(color='gainsboro')
 
 # Set axis titles and ticks for each subplot (Arctic Amplification) (Figure 2)
 for n in range(0,len(ax2_ylabels),1):
@@ -205,21 +189,6 @@ for n in range(0,len(ax2_ylabels),1):
             ax3[n].axhline(0, color='grey') 
             ax4[n].axhline(0, color='grey') 
             ax5[n].axhline(0, color='grey')
-        # if n==2:
-        #     ax2[n].set_ylim([1.3, ax2_ylim[0][n]])
-        #     ax3[n].set_ylim([1.2, ax3_ylim[0][n]])
-        #     ax4[n].set_ylim([1.0, ax4_ylim[0][n]])
-        #     ax5[n].set_ylim([0.4, ax5_ylim[0][n]])
-        #     ax2[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-        #     ax2[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        #     ax3[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-        #     ax3[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        #     ax4[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-        #     ax4[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        #     ax2[n].axhline(0, color='grey', linewidth=0.8) 
-        #     ax3[n].axhline(0, color='grey', linewidth=0.8) 
-        #     ax4[n].axhline(0, color='grey', linewidth=0.8) 
-        #     ax5[n].axhline(0, color='grey', linewidth=0.8) 
     else:
         if n!=2:
             ax2[n].set_ylim([-0.5, ax2_ylim[1][n]])
@@ -232,21 +201,6 @@ for n in range(0,len(ax2_ylabels),1):
             ax3[n].axhline(0, color='grey') 
             ax4[n].axhline(0, color='grey') 
             ax5[n].axhline(0, color='grey')
-        # if n==2:
-        #     ax2[n].set_ylim([1.2, ax2_ylim[1][n]])
-        #     ax3[n].set_ylim([1.2, ax3_ylim[1][n]])
-        #     ax4[n].set_ylim([0.9, ax4_ylim[1][n]])
-        #     ax5[n].set_ylim([0.4, ax5_ylim[1][n]])
-        #     ax2[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-        #     ax2[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        #     ax3[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-        #     ax3[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        #     ax4[n].yaxis.set_minor_locator(MultipleLocator(0.01))
-        #     ax4[n].yaxis.set_major_locator(MultipleLocator(0.1))
-        #     ax2[n].axhline(0, color='grey', linewidth=0.8) 
-        #     ax3[n].axhline(0, color='grey', linewidth=0.8) 
-        #     ax4[n].axhline(0, color='grey', linewidth=0.8) 
-        #     ax5[n].axhline(0, color='grey', linewidth=0.8) 
 
     ax2[n].set_xlim([0, 4.0])
     ax2[n].set_xticks(ticks=ssp_ticks, labels=ax2_xticklabels, 
@@ -305,8 +259,10 @@ for s in range(0, n_ssps, 1): # For each file (current SSP)
     time_series = [arc_tas_time_series, nhml_tas_time_series, tropics_tas_time_series, 
                    sh_tas_time_series]
     xmaxes = [0.19, 0.19, 0.19, 0.19]
-    ymaxes = [4.6, 3.7, 2.75, 1.85]
-    delta = [0.3, 0.23, 0.18, 0.15]
+    ymaxes = [4.5, 3.33, 2.7, 1.62]
+    delta = [0.36, 0.27, 0.23, 0.132]
+    ax1[1].text(x=3.12, y=3.5-s*0.34, s=ssp_labels[s], color=colors0[s], 
+                fontsize='medium', fontweight='regular')
     for r in range(1, len(regions), 1):
         curr_time_series = time_series[r-1]
         
@@ -315,11 +271,7 @@ for s in range(0, n_ssps, 1): # For each file (current SSP)
         #       ' ± ',
         #       "{:.2f}".format(uncertainty) )
         
-        
-        x,y,d = xmaxes[r-1], ymaxes[r-1], delta[r-1]
-        ax1[3].text(x=3.15, y=1.8-s*0.15, s=ssp_labels[s], color=colors0[s], 
-                    fontsize='medium')
-        
+        x,y,d = xmaxes[r-1], ymaxes[r-1], delta[r-1]        
         ax1[r-1].plot(gm_tas_time_series[project_start_i:project_end_i],
                         curr_time_series[project_start_i:project_end_i],
                         color=colors0[s],
@@ -327,10 +279,15 @@ for s in range(0, n_ssps, 1): # For each file (current SSP)
         
         lsr = least_squares_fit(gm_tas_time_series[project_start_i:project_end_i],
                                 curr_time_series[project_start_i:project_end_i])
+        m,b,sigma_m,sigma_b = reduced_major_axis(gm_tas_time_series[project_start_i:project_end_i],
+                                curr_time_series[project_start_i:project_end_i])
+        if sigma_m < 0.01:
+            sigma_m=0.01
         corr, _ = pearsonr(gm_tas_time_series[project_start_i:project_end_i],
                            curr_time_series[project_start_i:project_end_i])
             
-        ax1[r-1].text(s='m =  %.2f' % lsr[0] + ' ± %.2f' % lsr[2],
+        # ax1[r-1].text(s='m =  %.2f' % lsr[0] + ' ± %.2f' % lsr[2],
+        ax1[r-1].text(s='m =  %.2f' % m + ' ± %.2f' % sigma_m,     
                       x=x, y=y-s*d,
                       color=colors0[s],
                       fontsize=8)
@@ -348,7 +305,7 @@ for s in range(0, n_ssps, 1): # For each file (current SSP)
         
         ax6[0].scatter(x=ssp_ticks[s]*np.ones(n_ensemble),
                        y=gm_tas_time_series_ensemble[:,project_end_i],
-                       color=colors0[0], s=10)
+                       color=colors0[s], s=10)
         ax6[0].scatter(x=ssp_ticks[s],
                        y=gm_tas_time_series[project_end_i],
                        color='k', s=10)
@@ -382,10 +339,10 @@ for s in range(0, n_ssps, 1): # For each file (current SSP)
         
     
     # Mean amplifications for each year (across the ensemble)
-    # curr_arc_amp = arc_tas_time_series/gm_tas_time_series
-    # curr_nhml_amp = nhml_tas_time_series/gm_tas_time_series
-    # curr_tropics_amp = tropics_tas_time_series/gm_tas_time_series
-    # curr_sh_amp = sh_tas_time_series/gm_tas_time_series
+    curr_arc_amp = arc_tas_time_series/gm_tas_time_series
+    curr_nhml_amp = nhml_tas_time_series/gm_tas_time_series
+    curr_tropics_amp = tropics_tas_time_series/gm_tas_time_series
+    curr_sh_amp = sh_tas_time_series/gm_tas_time_series
     
     # Ensemble of amplifications
     curr_arc_amp_ensemble = arc_tas_time_series_ensemble/gm_tas_time_series_ensemble
@@ -414,22 +371,6 @@ for s in range(0, n_ssps, 1): # For each file (current SSP)
     amplifications_std[2,s] = curr_tropics_amp_std[project_end_i]
     amplifications_std[3,s] = curr_sh_amp_std[project_end_i]
     
-    # # Individual uncertainties from dividing the two averages for a mean amp
-    # curr_arc_amp_sigma = np.sqrt( np.square(arc_tas_time_series_sigma/arc_tas_time_series) +\
-    #                               np.square(gm_tas_time_series_sigma/gm_tas_time_series) )
-    # curr_nhml_amp_sigma = np.sqrt( np.square(nhml_tas_time_series_sigma/nhml_tas_time_series_sigma) +\
-    #                               np.square(gm_tas_time_series_sigma/gm_tas_time_series) )
-    # curr_tropics_amp_sigma = np.sqrt( np.square(tropics_tas_time_series_sigma/tropics_tas_time_series) +\
-    #                               np.square(gm_tas_time_series_sigma/gm_tas_time_series) )
-    # curr_sh_amp_sigma = np.sqrt( np.square(sh_tas_time_series_sigma/sh_tas_time_series) +\
-    #                               np.square(gm_tas_time_series_sigma/gm_tas_time_series_sigma) )
-    
-    # # uncertainty of ensemble mean amplification    
-    # amplifications_sigma[0,s] = curr_arc_amp_sigma[project_end_i]
-    # amplifications_sigma[1,s] = curr_nhml_amp_sigma[project_end_i]
-    # amplifications_sigma[2,s] = curr_tropics_amp_sigma[project_end_i]
-    # amplifications_sigma[3,s] = curr_sh_amp_sigma[project_end_i]
-        
     # Finished cycling through SSP files.
     # Now plot the amplifications
     
@@ -522,18 +463,18 @@ for r in range(0, n_regions-1, 1):
     amp_uncertainties[r] = (1/n_ssps)*np.sqrt(
           np.sum( np.square(amplifications_std[r,:]) )
         ) 
-    print('mean amplification = {:.2f}'.format(avg_amp[r]), 
-          '\nstddev = {:.2f}'.format(amp_std[r]), 
-          '\nuncertainty = {:.2f} \n'.format(amp_uncertainties[r]))  
+    # print('mean amplification = {:.2f}'.format(avg_amp[r]), 
+    #       '\nstddev = {:.2f}'.format(amp_std[r]), 
+    #       '\nuncertainty = {:.2f} \n'.format(amp_uncertainties[r]))  
   
     avg_m[r] = np.mean(slopes[r,:]) # Mean amplification for the region
     avg_m_std[r] = np.std(slopes[r,:])
     avg_m_uncertainties[r] = (1/n_ssps)*np.sqrt(
           np.sum( np.square(slopes_sigma[r,:]) ) # propagate uncertainty (uncertainty is the std of each ensemble mean amp)
         ) 
-    # print('mean slope = {:.2f}'.format(avg_m[r]), 
-    #       '\nstddev = {:.2f}'.format(avg_m_std[r]), 
-    #       '\nuncertainty = {:.2f} \n'.format(avg_m_uncertainties[r]))
+    print('mean slope = {:.2f}'.format(avg_m[r]), 
+          '\nstddev = {:.2f}'.format(avg_m_std[r]), 
+          '\nuncertainty = {:.2f} \n'.format(avg_m_uncertainties[r]))
     
 fig1.savefig('regional_sat_anomalies_vs_global_amap_ensemble_'+str(project_end)+'.png')
 fig2.savefig('arctic_amplification_amap_ensemble_'+str(project_end)+'.png')
